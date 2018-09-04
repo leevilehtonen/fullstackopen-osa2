@@ -1,5 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom'
+import AddForm from './AddForm';
+import FilterForm from './FilterForm';
+import ContactList from './ContactList';
 
 class App extends React.Component {
   constructor(props) {
@@ -46,31 +49,23 @@ class App extends React.Component {
     return (
       <div>
 		<h1>Puhelinluettelo</h1>
-		<div>
-            rajaa näytettäviä: <input value={this.state.filter} onChange={this.handleFilterChange}/>
-        </div>
+		<FilterForm 
+			filter={this.state.filter}
+			handleFilterChange={this.handleFilterChange}
+		/>
         <h2>Lisää uusi</h2>
-        <form onSubmit={this.addNewName}>
-          <div>
-            nimi: <input value={this.state.newName} onChange={this.handleNewNameChange}/>
-          </div>
-          <div>
-            numero: <input value={this.state.newNumber} onChange={this.handleNewNumberChange}/>
-          </div>
-          <div>
-            <button type="submit">lisää</button>
-          </div>
-        </form>
+		<AddForm 
+			newName={this.state.newName}
+			newNumber={this.state.newNumber}
+			handleNewNameChange={this.handleNewNameChange}
+			handleNewNumberChange={this.handleNewNumberChange}
+			addNewName={this.addNewName}
+		/>
         <h2>Numerot</h2>
-		<table>
-			<tbody>
-				{this.state.persons.filter((person) => person.name.toLocaleLowerCase().includes(this.state.filter.toLocaleLowerCase())).map((person) => 
-				<tr key={person.name}>
-					<td>{person.name}</td>
-					<td>{person.number}</td>
-				</tr>)}
-			</tbody>
-		</table>
+		<ContactList 
+			persons={this.state.persons}
+			filter={this.state.filter}
+		/>
       </div>
     )
   }
