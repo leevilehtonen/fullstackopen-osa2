@@ -6,22 +6,37 @@ class App extends React.Component {
     super(props)
     this.state = {
       persons: [
-        { name: 'Arto Hellas' }
+		{ 
+			name: 'Arto Hellas',
+			number: '044-123456'
+		}
       ],
-      newName: ''
+	  newName: '',
+	  newNumber: ''
     }
   }
 
   handleNewNameChange = (event) => this.setState({newName: event.target.value})
+  handleNewNumberChange = (event) => this.setState({newNumber: event.target.value})
   addNewName = (event) => {
 	event.preventDefault()
 	if (this.state.persons.some((person) => person.name === this.state.newName)) {
 		alert("Nimi on jo listassa")
-		this.setState({newName: ''})
+		this.setState({
+			newName: '',
+			newNumber: ''
+		})
 		return;
 	}
-	const newPersons = this.state.persons.concat({name: this.state.newName})
-	this.setState({persons: newPersons, newName: ''})
+	const newPersons = this.state.persons.concat({
+		name: this.state.newName,
+		number: this.state.newNumber
+	})
+	this.setState({
+		persons: newPersons, 
+		newName: '',
+		newNumber: ''
+	})
   }
 
   render() {
@@ -33,11 +48,22 @@ class App extends React.Component {
             nimi: <input value={this.state.newName} onChange={this.handleNewNameChange}/>
           </div>
           <div>
+            numero: <input value={this.state.newNumber} onChange={this.handleNewNumberChange}/>
+          </div>
+          <div>
             <button type="submit">lisää</button>
           </div>
         </form>
         <h2>Numerot</h2>
-		{this.state.persons.map((person) => <p key={person.name}>{person.name}</p>)}
+		<table>
+			<tbody>
+				{this.state.persons.map((person) => 
+				<tr key={person.name}>
+					<td>{person.name}</td>
+					<td>{person.number}</td>
+				</tr>)}
+			</tbody>
+		</table>
       </div>
     )
   }
