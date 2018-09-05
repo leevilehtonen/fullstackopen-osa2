@@ -4,15 +4,18 @@ import ContactService from './ContactService'
 import AddForm from './AddForm';
 import FilterForm from './FilterForm';
 import ContactList from './ContactList';
+import './index.css';
+
 
 class App extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-	  filter: '',	
-    persons: [],
-	  newName: '',
-	  newNumber: ''
+			filter: '',	
+			persons: [],
+			newName: '',
+			newNumber: '',
+			message: null
     }
   }
 
@@ -31,9 +34,13 @@ class App extends React.Component {
 		if (existingPerson) {
 			if(window.confirm(`${existingPerson.name} on jo luettelossa, korvataanko vanha numero uudella?`)) {
 				ContactService.updateOne(existingPerson.id, { ...existingPerson, number: this.state.newNumber})
-				.then(data => this.setState({
-					persons: this.state.persons.map(person => person.id === existingPerson.id ? data : person)
-				}))
+				.then(data => {
+					this.setState({
+						persons: this.state.persons.map(person => person.id === existingPerson.id ? data : person),
+						message: `Henkilön ${data.name} numero vaihdettiin onnistuneesti.`
+					})
+					setTimeout(()=> this.setState({message: null}), 5000);
+				})
 			} 
 			this.setState({
 				newName: '',
@@ -45,19 +52,27 @@ class App extends React.Component {
 			name: this.state.newName,
 			number: this.state.newNumber
 		}
-		ContactService.createOne(newPerson).then(data => 
+		ContactService.createOne(newPerson).then(data => {
 			this.setState({
 				persons: this.state.persons.concat(data),
 				newName: '',
-				newNumber: ''
+				newNumber: '',
+				message: `Henkilö ${data.name} luotiin onnistuneesti.`
 			})
-		)
+			setTimeout(()=> this.setState({message: null}), 5000);
+		})
 	}
 	
 	deletePerson = (person) => () => {
 		if(window.confirm(`Poistetaanko ${person.name}`)) {
 			ContactService.deleteOne(person.id)
-				.then(() => ContactService.getAll())
+				.then(() => {
+					this.setState({
+						message: `Henkilö ${person.name} poistettiin onnistuneesti.`
+					})
+					setTimeout(()=> this.setState({message: null}), 5000);
+					return ContactService.getAll()
+				})
 				.then((data) => this.setState({persons: data}))
 		}
 	}
@@ -66,6 +81,7 @@ class App extends React.Component {
     return (
       <div>
 				<h1>Puhelinluettelo</h1>
+				<Notification message={this.state.message}/>
 				<FilterForm 
 					filter={this.state.filter}
 					handleFilterChange={this.handleFilterChange}
@@ -91,5 +107,17 @@ class App extends React.Component {
 
 export default App
 
+
+const Notification = ({message}) => {
+	if(message === null) {
+		return null
+	} else {
+		return (
+			<div className="success">
+				<b>{message}</b>
+			</div>
+		)
+	}
+}
 
 ReactDOM.render(<App />, document.getElementById('root'))
