@@ -1,0 +1,14 @@
+body {
+    font-family: sans-serif
+}
+div {
+    margin-top: 1rem
+}
+
+.country {
+    margin: 0.1rem
+}
+
+img {
+    box-shadow: 0 0 20px #000
+}
