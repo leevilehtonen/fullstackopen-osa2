@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom'
+import axios from 'axios'
 import AddForm from './AddForm';
 import FilterForm from './FilterForm';
 import ContactList from './ContactList';
@@ -9,15 +10,16 @@ class App extends React.Component {
     super(props)
     this.state = {
 	  filter: '',	
-      persons: [
-		{ name: 'Arto Hellas', number: '040-123456' },
-		{ name: 'Martti Tienari', number: '040-123456' },
-		{ name: 'Arto Järvinen', number: '040-123456' },
-		{ name: 'Lea Kutvonen', number: '040-123456' }
-	  ],
+      persons: [],
 	  newName: '',
 	  newNumber: ''
     }
+  }
+
+  componentDidMount = () => {
+	axios
+		.get('http://localhost:3001/persons')
+		.then(response => this.setState({persons: response.data}))
   }
 
   handleNewNameChange = (event) => this.setState({newName: event.target.value})
