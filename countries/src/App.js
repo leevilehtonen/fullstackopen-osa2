@@ -7,7 +7,8 @@ class App extends Component {
     super(props)
     this.state = {
       serach: '',
-      countries:[]
+      countries:[],
+      clicked: false
     }
   }
   componentDidMount() {
@@ -19,16 +20,19 @@ class App extends Component {
     )
   }
   render() {
-    console.log(this.state.countries)
-    const results = this.state.countries.filter(country => country.name.toLowerCase().includes(this.state.serach.toLocaleLowerCase()))
+    const results = this.state.clicked ? 
+      this.state.countries.filter(country => country.name === this.state.serach) :
+      this.state.countries.filter(country => country.name.toLowerCase().includes(this.state.serach.toLocaleLowerCase()))
+      
     return (
       <div>
         <SearchField search={this.state.serach} handleSearchChange={this.handleSearchChange}/>
-        <ContentArea countries={results}/>
+        <ContentArea countries={results} handleCountryClick={this.handleCountryClick}/>
       </div>
     );
   }
-  handleSearchChange = (event) => this.setState({serach: event.target.value})
+  handleSearchChange = (event) => this.setState({serach: event.target.value, clicked: false})
+  handleCountryClick = (target) => () => this.setState({serach: target.name, clicked: true})
 
 }
 
@@ -38,13 +42,12 @@ const SearchField = ({serach, handleSearchChange}) => (
   </div>
 )
 
-const ContentArea = ({countries}) => {
+const ContentArea = ({countries, handleCountryClick}) => {
   if(countries.length > 10) {
     return <Notification text={"too much matches, specify another filter"}/>
   } else if (countries.length > 1) {
-    return <ResultsList countries={countries} />
+    return <ResultsList countries={countries} handleCountryClick={handleCountryClick}/>
   } else if (countries.length === 1){
-    console.log(countries)
     return <CountryView country={countries[0]} />
   } else {
     return <Notification text={"no results"} />
@@ -56,9 +59,9 @@ const Notification = ({text}) => (
   </div>
 )
 
-const ResultsList = ({countries}) => (
+const ResultsList = ({countries, handleCountryClick}) => (
   <div>
-    {countries.map((country, id) => <p className="country" key={id}>{country.name}</p>)}
+    {countries.map((country, id) => <p className="country" onClick={handleCountryClick(country)} key={id}>{country.name}</p>)}
   </div>
 )
 
@@ -68,7 +71,7 @@ const CountryView = ({country}) => (
     <p><b>Capital: </b>{country.capital}</p>
     <p><b>Population: </b>{country.population}</p>
     <p><b>Flag:</b></p>
-    <img src={country.flag} width={400}/>
+    <img src={country.flag} alt="" width={400}/>
   </div>
 )
 export default App;
