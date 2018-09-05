@@ -29,38 +29,44 @@ class App extends React.Component {
 
   addPerson = (event) => {
 		event.preventDefault()
-		const existingPerson = this.state.persons.find(person => person.name === this.state.newName);
+		ContactService.getAll()
+			.then(data => data.find(person => person.name === this.state.newName))
+			.then(existingPerson => {
+				if (existingPerson) {
+					if(window.confirm(`${existingPerson.name} on jo luettelossa, korvataanko vanha numero uudella?`)) {
+						 ContactService.updateOne(existingPerson.id, { ...existingPerson, number: this.state.newNumber})
+						 	.then(data => {
+								this.setState({
+									persons: this.state.persons.map(person => person.id === data.id ? data : person),
+									newName: '',
+									newNumber: '',
+									message: `Henkilön ${data.name} numero vaihdettiin onnistuneesti.`
+								})
+								setTimeout(()=> this.setState({message: null}), 5000);
+						})
+					} 
+				} else {
+						const newPerson = {
+							name: this.state.newName,
+							number: this.state.newNumber
+						}
+						ContactService.createOne(newPerson)
+							.then(data => {
+								this.setState({
+									newName: '',
+									newNumber: '',
+									message: `Henkilö ${data.name} luotiin onnistuneesti.`
+								})
+								setTimeout(()=> this.setState({message: null}), 5000);
+								return ContactService.getAll()
+							})
+							.then(data => this.setState({persons: data}))
+					} 
+			})
+			
+		
 
-		if (existingPerson) {
-			if(window.confirm(`${existingPerson.name} on jo luettelossa, korvataanko vanha numero uudella?`)) {
-				ContactService.updateOne(existingPerson.id, { ...existingPerson, number: this.state.newNumber})
-				.then(data => {
-					this.setState({
-						persons: this.state.persons.map(person => person.id === existingPerson.id ? data : person),
-						message: `Henkilön ${data.name} numero vaihdettiin onnistuneesti.`
-					})
-					setTimeout(()=> this.setState({message: null}), 5000);
-				})
-			} 
-			this.setState({
-				newName: '',
-				newNumber: ''
-			})
-			return;
-		}
-		const newPerson = {
-			name: this.state.newName,
-			number: this.state.newNumber
-		}
-		ContactService.createOne(newPerson).then(data => {
-			this.setState({
-				persons: this.state.persons.concat(data),
-				newName: '',
-				newNumber: '',
-				message: `Henkilö ${data.name} luotiin onnistuneesti.`
-			})
-			setTimeout(()=> this.setState({message: null}), 5000);
-		})
+		
 	}
 	
 	deletePerson = (person) => () => {
@@ -74,6 +80,10 @@ class App extends React.Component {
 					return ContactService.getAll()
 				})
 				.then((data) => this.setState({persons: data}))
+				.catch(() => {
+					alert("Person was already deleted")
+					this.setState({persons: this.state.persons.filter( val=> val.id !== person.id) });
+				})
 		}
 	}
 
