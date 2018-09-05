@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom'
-import axios from 'axios'
+import ContactService from './ContactService'
 import AddForm from './AddForm';
 import FilterForm from './FilterForm';
 import ContactList from './ContactList';
@@ -10,16 +10,14 @@ class App extends React.Component {
     super(props)
     this.state = {
 	  filter: '',	
-      persons: [],
+    persons: [],
 	  newName: '',
 	  newNumber: ''
     }
   }
 
   componentDidMount = () => {
-	axios
-		.get('http://localhost:3001/persons')
-		.then(response => this.setState({persons: response.data}))
+		ContactService.getAll().then(data => this.setState({persons: data}))
   }
 
   handleNewNameChange = (event) => this.setState({newName: event.target.value})
@@ -27,24 +25,26 @@ class App extends React.Component {
   handleFilterChange = (event) => this.setState({filter: event.target.value})
 
   addNewName = (event) => {
-	event.preventDefault()
-	if (this.state.persons.some((person) => person.name === this.state.newName)) {
-		alert("Nimi on jo listassa")
-		this.setState({
-			newName: '',
-			newNumber: ''
-		})
-		return;
-	}
-	const newPersons = this.state.persons.concat({
-		name: this.state.newName,
-		number: this.state.newNumber
-	})
-	this.setState({
-		persons: newPersons, 
-		newName: '',
-		newNumber: ''
-	})
+		event.preventDefault()
+		if (this.state.persons.some((person) => person.name === this.state.newName)) {
+			alert("Nimi on jo listassa")
+			this.setState({
+				newName: '',
+				newNumber: ''
+			})
+			return;
+		}
+		const newPerson = {
+			name: this.state.newName,
+			number: this.state.newNumber
+		}
+		ContactService.create(newPerson).then(data => 
+			this.setState({
+				persons: this.state.persons.concat(data),
+				newName: '',
+				newNumber: ''
+			})
+		)
   }
 
   render() {
