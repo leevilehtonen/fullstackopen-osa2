@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default ({persons, filter}) => {
+export default ({persons, filter, deletePerson}) => {
   return (
     <table>
         <tbody>
@@ -8,6 +8,9 @@ export default ({persons, filter}) => {
             <tr key={person.name}>
                 <td>{person.name}</td>
                 <td>{person.number}</td>
+                <td>
+                    <button onClick={deletePerson(person)}>poista</button>
+                </td>
             </tr>)}
         </tbody>
 	</table>

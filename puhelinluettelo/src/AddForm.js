@@ -1,8 +1,8 @@
 import React from 'react'
 
-export default ({addNewName, newName, newNumber, handleNewNameChange, handleNewNumberChange}) => {
+export default ({addPerson, newName, newNumber, handleNewNameChange, handleNewNumberChange}) => {
   return (
-    <form onSubmit={addNewName}>
+    <form onSubmit={addPerson}>
         <div>
             nimi: <input value={newName} onChange={handleNewNameChange}/>
         </div>
